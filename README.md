@@ -1,50 +1,60 @@
-# Welcome to your Expo app 👋
+Linkora is a role‑based mobile application that connects consumers with local service providers (MSMEs) through transparent bookings, rewards, and offline service payments.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Tagline:
+Where Every Purchase Pays Back
 
-## Get started
+🧠 Project Overview
+This repository contains the frontend of the Linkora mobile app built using:
 
-1. Install dependencies
+Expo
 
-   ```bash
-   npm install
-   ```
+React Native
 
-2. Start the app
+Expo Router (file‑based routing)
 
-   ```bash
-   npx expo start
-   ```
+TypeScript
 
-In the output, you'll find options to open the app in a
+Dark‑mode first UI
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+The app supports two user roles:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+👤 Consumer
 
-## Get a fresh project
+🏢 Service Provider
 
-When you're ready, run:
+Routing and UI are role‑based.
 
-```bash
-npm run reset-project
-```
+🛠 Tech Stack
+Framework: Expo (React Native)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Routing: Expo Router
 
-## Learn more
+Language: TypeScript
 
-To learn more about developing your project with Expo, look at the following resources:
+Styling: React Native StyleSheet
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Backend: Django REST API (separate repo)
 
-## Join the community
+Auth: JWT (to be integrated)
 
-Join our community of developers creating universal apps.
+Platform: Android, iOS
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+📁 Folder Structure
+linkora-frontend/
+├── app/
+│   ├── (auth)/
+│   │   ├── login.tsx
+│   │   └── register.tsx
+│   ├── (consumer)/
+│   │   └── home.tsx
+│   ├── (provider)/
+│   │   └── dashboard.tsx
+│   ├── _layout.tsx
+│   └── index.tsx
+├── assets/
+├── components/
+├── hooks/
+├── app.json
+├── babel.config.js
+└── package.json
+Expo Router automatically maps files inside the app/ directory to screens.
