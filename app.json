@@ -12,15 +12,10 @@
       "resizeMode": "contain",
       "backgroundColor": "#0B0B0F"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "plugins": [
-      "expo-router",
-      "expo-font"
-    ],
+    "assetBundlePatterns": ["**/*"],
+    "plugins": ["expo-router", "expo-font"],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": false
     }
   }
 }

@@ -1,94 +1,65 @@
-// app/(consumer)/home.tsx
+// app/(consumer)/saved.tsx
 
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   Pressable,
-  TextInput,
+  FlatList,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import Animated, {
-  FadeInUp,
   useSharedValue,
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+import { useRouter } from "expo-router";
 
-const BUSINESSES = [
+const SAVED = [
   {
     id: "1",
     name: "Glow Salon",
     category: "Salon • Beauty",
     rating: "4.8",
-    reviews: "230",
   },
   {
     id: "2",
     name: "FitZone Gym",
     category: "Gym • Fitness",
     rating: "4.6",
-    reviews: "180",
-  },
-  {
-    id: "3",
-    name: "Urban Spa",
-    category: "Spa • Wellness",
-    rating: "4.9",
-    reviews: "310",
   },
 ];
 
-export default function ConsumerHome() {
+export default function SavedBusinesses() {
   const router = useRouter();
 
   return (
     <LinearGradient
-      colors={["#0B0B0F", "#0F172A", "#0B0B0F"]}
+      colors={["#0B0B0F", "#12121A", "#0B0B0F"]}
       style={styles.container}
     >
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Discover</Text>
-        <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
-      </View>
-
-      <View style={styles.searchBox}>
-        <Ionicons name="search-outline" size={18} color="#9CA3AF" />
-        <TextInput
-          placeholder="Search businesses, services..."
-          placeholderTextColor="#6B7280"
-          style={styles.searchInput}
-        />
-      </View>
+      <Text style={styles.title}>Saved Businesses</Text>
 
       <FlatList
-        data={BUSINESSES}
+        data={SAVED}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
-        renderItem={({ item, index }) => (
-          <BusinessCard
-            item={item}
-            index={index}
-            onPress={() => router.push(`/business/${item.id}`)}
-          />
+        renderItem={({ item }) => (
+          <SavedCard item={item} router={router} />
         )}
       />
     </LinearGradient>
   );
 }
 
-function BusinessCard({
+function SavedCard({
   item,
-  index,
-  onPress,
+  router,
 }: {
   item: any;
-  index: number;
-  onPress: () => void;
+  router: any;
 }) {
   const scale = useSharedValue(1);
 
@@ -97,29 +68,28 @@ function BusinessCard({
   }));
 
   return (
-    <Animated.View
-      entering={FadeInUp.delay(index * 80)}
-      style={[styles.card, animatedStyle]}
-    >
+    <Animated.View style={[styles.card, animatedStyle]}>
       <Pressable
         onPressIn={() => (scale.value = withSpring(1.03))}
         onPressOut={() => (scale.value = withSpring(1))}
-        onPress={onPress}
+        onPress={() => router.push(`/business/${item.id}`)}
       >
-        <View style={styles.cardRow}>
+        <View style={styles.row}>
           <View>
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.category}>{item.category}</Text>
 
             <View style={styles.rating}>
               <Ionicons name="star" size={14} color="#22C55E" />
-              <Text style={styles.ratingText}>
-                {item.rating} ({item.reviews})
-              </Text>
+              <Text style={styles.ratingText}>{item.rating}</Text>
             </View>
           </View>
 
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color="#9CA3AF"
+          />
         </View>
       </Pressable>
     </Animated.View>
@@ -132,45 +102,25 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 20,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 18,
-  },
-  greeting: {
+  title: {
     fontSize: 28,
     fontWeight: "700",
     color: "#FFFFFF",
-  },
-  searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#111827",
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    height: 52,
     marginBottom: 24,
-    gap: 10,
-  },
-  searchInput: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    flex: 1,
   },
   card: {
     backgroundColor: "#111827",
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 16,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
   },
-  cardRow: {
+  row: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   name: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "600",
     color: "#FFFFFF",
   },
@@ -183,7 +133,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginTop: 8,
+    marginTop: 6,
   },
   ratingText: {
     fontSize: 13,
