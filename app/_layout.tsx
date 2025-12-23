@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { View, Text, Image, StyleSheet } from "react-native";
+import { AuthProvider } from "../context/AuthContext";
 
 function HeaderTitle() {
   return (
@@ -15,20 +16,16 @@ function HeaderTitle() {
 
 export default function RootLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: "#0B0B0F" },
-        headerTintColor: "#FFFFFF",
-        headerTitle: () => <HeaderTitle />,
-        headerShadowVisible: false,
-      }}
-    >
-      {/* Auth screens → NO HEADER */}
-      <Stack.Screen
-        name="(auth)"
-        options={{ headerShown: false }}
+    <AuthProvider>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: "#0B0B0F" },
+          headerTintColor: "#FFFFFF",
+          headerTitle: () => <HeaderTitle />,
+          headerShadowVisible: false,
+        }}
       />
-    </Stack>
+    </AuthProvider>
   );
 }
 

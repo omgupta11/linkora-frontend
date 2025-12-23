@@ -10,24 +10,53 @@ import {
   TextInput,
   View,
   Image,
+  Alert,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
   const router = useRouter();
   const { role } = useLocalSearchParams<{ role?: "consumer" | "provider" }>();
+  const { login } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const scaleLogin = useSharedValue(1);
-
   const loginStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scaleLogin.value }],
   }));
 
   const isConsumer = role === "consumer";
+
+  async function handleLogin() {
+    if (!email || !password) {
+      Alert.alert("Error", "Enter email and password");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const user = await login(email, password);
+
+      if (user.role === "consumer") {
+        router.replace("/(consumer)/home");
+      } else {
+        router.replace("/(provider)/dashboard");
+      }
+    } catch (e) {
+      Alert.alert("Login failed", "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <LinearGradient
@@ -40,15 +69,12 @@ export default function Login() {
       >
         {/* HEADER */}
         <View style={styles.header}>
-          {/* LOGO */}
-         <Image
-  source={require("../../assets/images/icon.png")}
-  style={styles.logo}
-  resizeMode="contain"
-/>
+          <Image
+            source={require("../../assets/images/icon.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
 
-
-          {/* ROLE ICON */}
           <Ionicons
             name={isConsumer ? "person-outline" : "briefcase-outline"}
             size={36}
@@ -74,6 +100,9 @@ export default function Login() {
               placeholder="you@example.com"
               placeholderTextColor="#6B7280"
               style={styles.input}
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
             />
           </View>
 
@@ -84,6 +113,8 @@ export default function Login() {
               placeholderTextColor="#6B7280"
               secureTextEntry
               style={styles.input}
+              value={password}
+              onChangeText={setPassword}
             />
           </View>
         </View>
@@ -94,16 +125,13 @@ export default function Login() {
             <Pressable
               onPressIn={() => (scaleLogin.value = withSpring(1.05))}
               onPressOut={() => (scaleLogin.value = withSpring(1))}
-              onPress={() =>
-                router.replace(
-                  isConsumer
-                    ? "/(consumer)/home"
-                    : "/(provider)/dashboard"
-                )
-              }
+              onPress={handleLogin}
               style={styles.loginButton}
+              disabled={loading}
             >
-              <Text style={styles.loginText}>Login</Text>
+              <Text style={styles.loginText}>
+                {loading ? "Logging in..." : "Login"}
+              </Text>
             </Pressable>
           </Animated.View>
 

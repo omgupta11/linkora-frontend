@@ -1,9 +1,20 @@
-// app/(consumer)/_layout.tsx
-
-import { Tabs } from "expo-router";
+import { Tabs, Redirect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ConsumerTabsLayout() {
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+
+  if (!user) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  if (user.role !== "consumer") {
+    return <Redirect href="/" />;
+  }
+
   return (
     <Tabs
       screenOptions={{
@@ -37,11 +48,7 @@ export default function ConsumerTabsLayout() {
         options={{
           title: "Bookings",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="calendar-outline"
-              size={size}
-              color={color}
-            />
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />
@@ -51,11 +58,7 @@ export default function ConsumerTabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="person-outline"
-              size={size}
-              color={color}
-            />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
