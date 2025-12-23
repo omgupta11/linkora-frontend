@@ -48,8 +48,7 @@ linkora-frontend/
 │   ├── (consumer)/
 │   │   └── home.tsx
 │   ├── (provider)/
-│   │   └── dashboard.tsx
-│   ├── _layout.tsx
+│   │   └── 3│   ├── _layout.tsx
 │   └── index.tsx
 ├── assets/
 ├── components/
@@ -58,3 +57,20 @@ linkora-frontend/
 ├── babel.config.js
 └── package.json
 Expo Router automatically maps files inside the app/ directory to screens.
+## Branding & Splash Screen
+
+The Linkora app uses the official logo across splash screen and app icon.
+
+### Splash Screen
+Configured via Expo:
+
+```json
+{
+  "expo": {
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }
+  }
+}

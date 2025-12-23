@@ -9,6 +9,7 @@ import {
   Text,
   TextInput,
   View,
+  Image,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -39,14 +40,25 @@ export default function Login() {
       >
         {/* HEADER */}
         <View style={styles.header}>
+          {/* LOGO */}
+         <Image
+  source={require("../../assets/images/icon.png")}
+  style={styles.logo}
+  resizeMode="contain"
+/>
+
+
+          {/* ROLE ICON */}
           <Ionicons
             name={isConsumer ? "person-outline" : "briefcase-outline"}
-            size={44}
+            size={36}
             color="#22C55E"
           />
+
           <Text style={styles.title}>
             {isConsumer ? "Consumer Login" : "Provider Login"}
           </Text>
+
           <Text style={styles.subtitle}>
             {isConsumer
               ? "Access your account and discover businesses"
@@ -120,9 +132,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   header: {
-    marginTop: 120,
+    marginTop: 80,
     marginBottom: 40,
     alignItems: "center",
+  },
+  logo: {
+    width: 96,
+    height: 96,
+    marginBottom: 14,
   },
   title: {
     fontSize: 28,

@@ -1,25 +1,28 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "./axios";
 
-export const loginUser = async (payload: {
-  email: string;
-  password: string;
-  role: "consumer" | "provider";
-}) => {
-  const res = await api.post("/auth/login/", payload);
+export const login = async (username: string, password: string) => {
+  const res = await api.post("/token/", { username, password });
+  await AsyncStorage.setItem("access_token", res.data.access);
+  await AsyncStorage.setItem("refresh_token", res.data.refresh);
   return res.data;
 };
 
-export const registerUser = async (payload: {
-  name: string;
-  email: string;
-  password: string;
-  role: "consumer" | "provider";
-}) => {
-  const res = await api.post("/auth/register/", payload);
+export const register = async (payload: any) => {
+  const res = await api.post("/accounts/register/", payload);
   return res.data;
 };
 
-export const logoutUser = async () => {
-  const res = await api.post("/auth/logout/");
+export const getMe = async () => {
+  const res = await api.get("/accounts/me/");
+  await AsyncStorage.setItem("user", JSON.stringify(res.data));
   return res.data;
+};
+
+export const logout = async () => {
+  await AsyncStorage.multiRemove([
+    "access_token",
+    "refresh_token",
+    "user",
+  ]);
 };

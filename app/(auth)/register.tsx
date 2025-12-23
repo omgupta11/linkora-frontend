@@ -7,6 +7,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -42,14 +43,27 @@ export default function Register() {
         >
           {/* HEADER */}
           <View style={styles.header}>
+            {/* LOGO */}
+           <Image
+  source={require("../../assets/images/icon.png")}
+  style={styles.logo}
+  resizeMode="contain"
+/>
+
+
+            {/* ROLE ICON */}
             <Ionicons
               name={isConsumer ? "person-outline" : "briefcase-outline"}
-              size={44}
+              size={36}
               color="#22C55E"
             />
+
             <Text style={styles.title}>
-              {isConsumer ? "Consumer Registration" : "Provider Registration"}
+              {isConsumer
+                ? "Consumer Registration"
+                : "Provider Registration"}
             </Text>
+
             <Text style={styles.subtitle}>
               {isConsumer
                 ? "Create your account to explore trusted businesses"
@@ -72,7 +86,10 @@ export default function Register() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Preferences</Text>
               <Field label="City" placeholder="Your city" />
-              <Field label="Interests" placeholder="e.g. Salon, Fitness, Repair" />
+              <Field
+                label="Interests"
+                placeholder="e.g. Salon, Fitness, Repair"
+              />
             </View>
           )}
 
@@ -82,7 +99,10 @@ export default function Register() {
               <Text style={styles.sectionTitle}>Business Details</Text>
 
               <Field label="Business Name" placeholder="Your business name" />
-              <Field label="Business Category" placeholder="e.g. Salon, Plumbing" />
+              <Field
+                label="Business Category"
+                placeholder="e.g. Salon, Plumbing"
+              />
               <Field
                 label="Services Offered"
                 placeholder="e.g. Haircut, Spa, Repair"
@@ -94,17 +114,23 @@ export default function Register() {
                 multiline
               />
 
-              {/* IMAGE UPLOAD PLACEHOLDERS */}
               <View style={styles.uploadBox}>
-                <Ionicons name="image-outline" size={26} color="#9CA3AF" />
+                <Ionicons
+                  name="image-outline"
+                  size={26}
+                  color="#9CA3AF"
+                />
                 <Text style={styles.uploadText}>
                   Upload Business Images (coming next)
                 </Text>
               </View>
 
-              {/* MAP PLACEHOLDER */}
               <View style={styles.uploadBox}>
-                <Ionicons name="location-outline" size={26} color="#9CA3AF" />
+                <Ionicons
+                  name="location-outline"
+                  size={26}
+                  color="#9CA3AF"
+                />
                 <Text style={styles.uploadText}>
                   Select Business Location (Google Maps)
                 </Text>
@@ -173,9 +199,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   header: {
-    marginTop: 100,
+    marginTop: 80,
     marginBottom: 30,
     alignItems: "center",
+  },
+  logo: {
+    width: 96,
+    height: 96,
+    marginBottom: 14,
   },
   title: {
     fontSize: 26,
