@@ -28,18 +28,13 @@ export default function Landing() {
       colors={["#0B0B0F", "#12121A", "#0B0B0F"]}
       style={styles.container}
     >
-      {/* HERO SECTION */}
+      {/* HERO */}
       <View style={styles.hero}>
         <Text style={styles.logo}>Linkora</Text>
-
-        <Text style={styles.tagline}>
-          Where Every Purchase Pays Back
-        </Text>
-
+        <Text style={styles.tagline}>Where Every Purchase Pays Back</Text>
         <Text style={styles.description}>
-          Linkora connects consumers with trusted local businesses and
-          empowers service providers with visibility, transparency, and
-          growth.
+          Linkora connects consumers with trusted local businesses and empowers
+          service providers with visibility, transparency, and growth.
         </Text>
       </View>
 
@@ -51,7 +46,7 @@ export default function Landing() {
         <Text style={styles.feature}>• Grow your business with trust</Text>
       </View>
 
-      {/* CTA SECTION */}
+      {/* CTA */}
       <View style={styles.cta}>
         <Animated.View style={consumerStyle}>
           <Pressable
@@ -85,14 +80,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: height * 0.12,
   },
-  hero: {
-    marginBottom: 40,
-  },
+  hero: { marginBottom: 40 },
   logo: {
     fontSize: 42,
     fontWeight: "700",
     color: "#FFFFFF",
-    letterSpacing: 1,
     marginBottom: 10,
   },
   tagline: {
@@ -104,11 +96,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#A1A1AA",
     lineHeight: 22,
-    maxWidth: "95%",
   },
-  features: {
-    marginBottom: 40,
-  },
+  features: { marginBottom: 40 },
   feature: {
     fontSize: 14,
     color: "#D4D4D8",
@@ -124,9 +113,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: "center",
   },
-  consumer: {
-    backgroundColor: "#22C55E",
-  },
+  consumer: { backgroundColor: "#22C55E" },
   provider: {
     backgroundColor: "#1F2937",
     borderWidth: 1,

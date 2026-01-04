@@ -1,38 +1,9 @@
-import { Tabs, Redirect } from "expo-router";
+import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "../../context/AuthContext";
 
-export default function ConsumerTabsLayout() {
-  const { user, loading } = useAuth();
-
-  if (loading) return null;
-
-  if (!user) {
-    return <Redirect href="/(auth)/login" />;
-  }
-
-  if (user.role !== "consumer") {
-    return <Redirect href="/" />;
-  }
-
+export default function ConsumerLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: "#0B0B0F",
-          borderTopColor: "#1F2937",
-          height: 70,
-          paddingBottom: 10,
-        },
-        tabBarActiveTintColor: "#22C55E",
-        tabBarInactiveTintColor: "#6B7280",
-        tabBarLabelStyle: {
-          fontSize: 11,
-          marginTop: -4,
-        },
-      }}
-    >
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
         name="home"
         options={{
@@ -42,7 +13,6 @@ export default function ConsumerTabsLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="bookings"
         options={{
@@ -52,7 +22,6 @@ export default function ConsumerTabsLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="profile"
         options={{

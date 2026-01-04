@@ -1,201 +1,214 @@
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
+  ActivityIndicator,
   Pressable,
-  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
+import api from "../../lib/api";
+import { useAuth } from "../../context/AuthContext";
+
+type Stats = {
+  total_services: number;
+  total_bookings: number;
+  completed_bookings: number;
+  total_reviews: number;
+  average_rating: number;
+};
 
 export default function ProviderDashboard() {
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // 🚫 HARD BLOCK: profile incomplete
+  const businessName = user?.provider_profile?.business_name;
+
+  useEffect(() => {
+    if (!businessName) {
+      return;
+    }
+    fetchStats();
+  }, []);
+
+  async function fetchStats() {
+    try {
+      const res = await api.get("/provider/dashboard/");
+      setStats(res.data);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ⛔ PROFILE NOT COMPLETE
+  if (!businessName) {
+    return (
+      <LinearGradient
+        colors={["#0B0B0F", "#0F172A", "#0B0B0F"]}
+        style={styles.container}
+      >
+        <View style={styles.center}>
+          <Ionicons name="alert-circle-outline" size={54} color="#EF4444" />
+          <Text style={styles.errorTitle}>
+            Profile Incomplete
+          </Text>
+          <Text style={styles.errorText}>
+            You must complete your business profile before using the dashboard.
+          </Text>
+
+          <Pressable
+            onPress={() => {
+              logout();
+              router.replace("/(auth)/login?role=provider");
+            }}
+            style={styles.logoutBtn}
+          >
+            <Text style={styles.logoutText}>Logout</Text>
+          </Pressable>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  if (loading || !stats) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#22C55E" />
+      </View>
+    );
+  }
+
   return (
     <LinearGradient
-      colors={["#0B0B0F", "#12121A", "#0B0B0F"]}
+      colors={["#0B0B0F", "#0F172A", "#0B0B0F"]}
       style={styles.container}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40 }}
-      >
-        {/* HEADER */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.welcome}>Welcome back</Text>
-            <Text style={styles.businessName}>Your Business</Text>
-          </View>
+      <Text style={styles.welcome}>Welcome</Text>
+      <Text style={styles.name}>{businessName}</Text>
 
-          <Ionicons name="settings-outline" size={22} color="#9CA3AF" />
-        </View>
+      <View style={styles.grid}>
+        <Card label="Services" value={stats.total_services} />
+        <Card label="Bookings" value={stats.total_bookings} />
+        <Card label="Completed" value={stats.completed_bookings} />
+        <Card label="Reviews" value={stats.total_reviews} />
+      </View>
 
-        {/* STATS */}
-        <View style={styles.statsRow}>
-          <StatCard title="Views" value="1.2k" icon="eye-outline" />
-          <StatCard title="Bookings" value="86" icon="calendar-outline" />
-        </View>
-
-        <View style={styles.statsRow}>
-          <StatCard title="Rating" value="4.8" icon="star-outline" />
-          <StatCard title="Services" value="12" icon="briefcase-outline" />
-        </View>
-
-        {/* ACTIONS */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-
-          <ActionCard
-            icon="add-circle-outline"
-            title="Add / Edit Services"
-            subtitle="Manage what you offer"
-          />
-
-          <ActionCard
-            icon="image-outline"
-            title="Manage Business Images"
-            subtitle="Upload gallery & cover"
-          />
-
-          <ActionCard
-            icon="location-outline"
-            title="Business Location"
-            subtitle="Update map & address"
-          />
-        </View>
-      </ScrollView>
+      <View style={styles.rating}>
+        <Ionicons name="star" size={18} color="#FACC15" />
+        <Text style={styles.ratingText}>
+          Average Rating:{" "}
+          <Text style={styles.ratingValue}>
+            {stats.average_rating.toFixed(1)}
+          </Text>
+        </Text>
+      </View>
     </LinearGradient>
   );
 }
 
-/* ---------- STAT CARD ---------- */
-function StatCard({
-  title,
-  value,
-  icon,
-}: {
-  title: string;
-  value: string;
-  icon: any;
-}) {
+/* ---------- components ---------- */
+
+function Card({ label, value }: { label: string; value: number }) {
   return (
-    <View style={styles.statCard}>
-      <Ionicons name={icon} size={22} color="#22C55E" />
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statTitle}>{title}</Text>
+    <View style={styles.card}>
+      <Text style={styles.cardValue}>{value}</Text>
+      <Text style={styles.cardLabel}>{label}</Text>
     </View>
   );
 }
 
-/* ---------- ACTION CARD ---------- */
-function ActionCard({
-  icon,
-  title,
-  subtitle,
-}: {
-  icon: any;
-  title: string;
-  subtitle: string;
-}) {
-  const scale = useSharedValue(1);
+/* ---------- styles ---------- */
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  return (
-    <Animated.View style={[styles.actionCard, animatedStyle]}>
-      <Pressable
-        onPressIn={() => (scale.value = withSpring(1.04))}
-        onPressOut={() => (scale.value = withSpring(1))}
-      >
-        <View style={styles.actionRow}>
-          <Ionicons name={icon} size={22} color="#22C55E" />
-          <View>
-            <Text style={styles.actionTitle}>{title}</Text>
-            <Text style={styles.actionSubtitle}>{subtitle}</Text>
-          </View>
-        </View>
-      </Pressable>
-    </Animated.View>
-  );
-}
-
-/* ---------- STYLES ---------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
+    paddingTop: 70,
     paddingHorizontal: 20,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  loader: {
+    flex: 1,
+    backgroundColor: "#0B0B0F",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 30,
   },
   welcome: {
-    fontSize: 14,
     color: "#9CA3AF",
+    fontSize: 14,
   },
-  businessName: {
-    fontSize: 26,
-    fontWeight: "700",
+  name: {
     color: "#FFFFFF",
-    marginTop: 4,
+    fontSize: 30,
+    fontWeight: "700",
+    marginBottom: 30,
   },
-  statsRow: {
+  grid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 14,
-    marginBottom: 14,
   },
-  statCard: {
-    flex: 1,
+  card: {
+    width: "48%",
     backgroundColor: "#111827",
     borderRadius: 16,
-    padding: 16,
-    alignItems: "center",
-    gap: 6,
+    padding: 18,
   },
-  statValue: {
+  cardValue: {
+    fontSize: 26,
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+  cardLabel: {
+    color: "#9CA3AF",
+    marginTop: 6,
+  },
+  rating: {
+    marginTop: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  ratingText: {
+    color: "#9CA3AF",
+  },
+  ratingValue: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  errorTitle: {
+    color: "#FFFFFF",
     fontSize: 22,
     fontWeight: "700",
-    color: "#FFFFFF",
+    marginTop: 16,
   },
-  statTitle: {
-    fontSize: 13,
+  errorText: {
     color: "#9CA3AF",
+    textAlign: "center",
+    marginTop: 10,
+    lineHeight: 22,
   },
-  section: {
+  logoutBtn: {
     marginTop: 30,
-    gap: 16,
+    backgroundColor: "#EF4444",
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 12,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#E5E7EB",
-  },
-  actionCard: {
-    backgroundColor: "#111827",
-    borderRadius: 16,
-    padding: 16,
-  },
-  actionRow: {
-    flexDirection: "row",
-    gap: 14,
-    alignItems: "center",
-  },
-  actionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
+  logoutText: {
     color: "#FFFFFF",
-  },
-  actionSubtitle: {
-    fontSize: 13,
-    color: "#9CA3AF",
-    marginTop: 2,
+    fontWeight: "600",
   },
 });

@@ -1,27 +1,11 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function RoleSelect() {
   const router = useRouter();
   const { role } = useLocalSearchParams<{ role?: "consumer" | "provider" }>();
-
-  const scaleLogin = useSharedValue(1);
-  const scaleRegister = useSharedValue(1);
-
-  const loginStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scaleLogin.value }],
-  }));
-
-  const registerStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scaleRegister.value }],
-  }));
 
   const isConsumer = role === "consumer";
 
@@ -30,7 +14,6 @@ export default function RoleSelect() {
       colors={["#0B0B0F", "#12121A", "#0B0B0F"]}
       style={styles.container}
     >
-      {/* HEADER */}
       <View style={styles.header}>
         <Ionicons
           name={isConsumer ? "person-outline" : "briefcase-outline"}
@@ -49,41 +32,32 @@ export default function RoleSelect() {
         </Text>
       </View>
 
-      {/* ACTIONS */}
       <View style={styles.actions}>
-        <Animated.View style={loginStyle}>
-          <Pressable
-            onPress={() =>
-              router.push(
-                isConsumer
-                  ? "/(auth)/login?role=consumer"
-                  : "/(auth)/login?role=provider"
-              )
-            }
-            onPressIn={() => (scaleLogin.value = withSpring(1.05))}
-            onPressOut={() => (scaleLogin.value = withSpring(1))}
-            style={[styles.button, styles.primary]}
-          >
-            <Text style={styles.primaryText}>Login</Text>
-          </Pressable>
-        </Animated.View>
+        <Pressable
+          style={[styles.button, styles.primary]}
+          onPress={() =>
+            router.push(
+              isConsumer
+                ? "/(auth)/login-consumer"
+                : "/(auth)/login-provider"
+            )
+          }
+        >
+          <Text style={styles.primaryText}>Login</Text>
+        </Pressable>
 
-        <Animated.View style={registerStyle}>
-          <Pressable
-            onPress={() =>
-              router.push(
-                isConsumer
-                  ? "/(auth)/register?role=consumer"
-                  : "/(auth)/register?role=provider"
-              )
-            }
-            onPressIn={() => (scaleRegister.value = withSpring(1.05))}
-            onPressOut={() => (scaleRegister.value = withSpring(1))}
-            style={[styles.button, styles.secondary]}
-          >
-            <Text style={styles.secondaryText}>Create Account</Text>
-          </Pressable>
-        </Animated.View>
+        <Pressable
+          style={[styles.button, styles.secondary]}
+          onPress={() =>
+            router.push(
+              isConsumer
+                ? "/(auth)/register-consumer"
+                : "/(auth)/register-provider"
+            )
+          }
+        >
+          <Text style={styles.secondaryText}>Create Account</Text>
+        </Pressable>
       </View>
     </LinearGradient>
   );
@@ -112,7 +86,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: "center",
     maxWidth: "85%",
-    lineHeight: 22,
   },
   actions: {
     gap: 16,
@@ -126,7 +99,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#22C55E",
   },
   secondary: {
-    backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: "#374151",
   },
