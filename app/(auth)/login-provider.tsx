@@ -14,7 +14,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 
-
 export default function LoginProvider() {
   const router = useRouter();
   const { login } = useAuth();
@@ -36,8 +35,8 @@ export default function LoginProvider() {
         email.trim().toLowerCase(),
         password
       );
+if ((user as any).role !== "provider") {
 
-      if (user.role !== "provider") {
         Alert.alert("Access denied", "Not a provider account");
         return;
       }
@@ -54,13 +53,20 @@ export default function LoginProvider() {
   }
 
   return (
-    <LinearGradient colors={["#0B0B0F", "#12121A"]} style={styles.container}>
+    <LinearGradient
+      colors={["#0B0B0F", "#12121A"]}
+      style={styles.container}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
         <View style={styles.header}>
-          <Ionicons name="briefcase-outline" size={42} color="#22C55E" />
+          <Ionicons
+            name="briefcase-outline"
+            size={42}
+            color="#22C55E"
+          />
           <Text style={styles.title}>Provider Login</Text>
           <Text style={styles.subtitle}>
             Manage your business & bookings
@@ -103,15 +109,11 @@ export default function LoginProvider() {
           </Text>
         </Pressable>
 
-        <Pressable
-          onPress={() => router.push("/(auth)/forgot-password")}
-        >
+        <Pressable onPress={() => router.push("/(auth)/forgot-password")}>
           <Text style={styles.link}>Forgot password?</Text>
         </Pressable>
 
-        <Pressable
-          onPress={() => router.push("/(auth)/register-provider")}
-        >
+        <Pressable onPress={() => router.push("/(auth)/register-provider")}>
           <Text style={styles.linkAlt}>
             Don’t have an account? Register
           </Text>
@@ -121,7 +123,7 @@ export default function LoginProvider() {
   );
 }
 
-/* ---------- COMPONENT ---------- */
+/* ---------- INPUT COMPONENT ---------- */
 
 function Input({ label, error, rightIcon, ...props }: any) {
   return (
@@ -144,25 +146,31 @@ function Input({ label, error, rightIcon, ...props }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 24 },
+
   header: {
     marginTop: 90,
     marginBottom: 50,
     alignItems: "center",
   },
+
   title: {
     fontSize: 26,
     fontWeight: "700",
     color: "#FFFFFF",
     marginTop: 16,
   },
+
   subtitle: {
     fontSize: 14,
     color: "#A1A1AA",
     marginTop: 10,
     textAlign: "center",
   },
+
   form: { marginBottom: 30 },
+
   label: { color: "#9CA3AF", fontSize: 13, marginBottom: 6 },
+
   inputWrap: {
     flexDirection: "row",
     alignItems: "center",
@@ -170,13 +178,16 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 14,
   },
+
   input: {
     height: 52,
     flex: 1,
     color: "#FFFFFF",
     fontSize: 15,
   },
+
   error: { color: "#EF4444", fontSize: 12, marginTop: 6 },
+
   primary: {
     backgroundColor: "#22C55E",
     paddingVertical: 16,
@@ -184,21 +195,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+
   primaryText: {
     color: "#000",
     fontSize: 16,
     fontWeight: "600",
   },
+
   link: {
     textAlign: "center",
     color: "#22C55E",
     fontSize: 14,
     marginBottom: 10,
   },
+
   linkAlt: {
     textAlign: "center",
     color: "#A1A1AA",
     fontSize: 14,
   },
+
   disabled: { opacity: 0.5 },
 });
