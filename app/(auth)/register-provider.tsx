@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -22,7 +22,7 @@ import api from "../../lib/api";
 const INDIAN_STATES = [
   "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa",
   "Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala",
-  "Madhya Pradesh","Maharashtra",Manipur","Meghalaya","Mizoram","Nagaland",
+  "Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland",
   "Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura",
   "Uttar Pradesh","Uttarakhand","West Bengal",
 ];
@@ -40,26 +40,24 @@ const phoneRegex = /^[0-9]{10}$/;
 export default function RegisterProvider() {
   const router = useRouter();
 
-/* -------- STEP CONTROL -------- */
-
+  /* -------- STEP CONTROL -------- */
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [submitted, setSubmitted] = useState(false);
-const next = () => setStep((prev) => (prev < 4 ? ((prev + 1) as 1 | 2 | 3 | 4) : prev));
-const back = () => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) : prev));
+  const next = () => setStep((p) => (p < 4 ? ((p + 1) as any) : p));
+  const back = () => setStep((p) => (p > 1 ? ((p - 1) as any) : p));
 
-
-/* -------- ACCOUNT -------- */
+  /* -------- ACCOUNT -------- */
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [phone, setPhone] = useState("");
 
-/* -------- BUSINESS -------- */
+  /* -------- BUSINESS -------- */
   const [businessName, setBusinessName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [category, setCategory] = useState("");
 
-/* -------- ADDRESS -------- */
+  /* -------- ADDRESS -------- */
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -67,17 +65,17 @@ const back = () => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) :
   const [pincode, setPincode] = useState("");
   const [landmark, setLandmark] = useState("");
 
-/* -------- OPTIONAL -------- */
+  /* -------- OPTIONAL -------- */
   const [gst, setGst] = useState("");
 
-/* -------- IMAGES -------- */
+  /* -------- IMAGES -------- */
   const [coverImage, setCoverImage] = useState<any>(null);
   const [ownerImage, setOwnerImage] = useState<any>(null);
 
-/* -------- UI -------- */
+  /* -------- UI -------- */
   const [loading, setLoading] = useState(false);
 
-/* ---------------- IMAGE PICKER ---------------- */
+  /* ---------------- IMAGE PICKER ---------------- */
 
   async function pickImage(setter: any) {
     const res = await ImagePicker.launchImageLibraryAsync({
@@ -89,7 +87,7 @@ const back = () => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) :
     }
   }
 
-/* ---------------- VALIDATION ---------------- */
+  /* ---------------- VALIDATION ---------------- */
 
   function isStepValid() {
     if (step === 1) {
@@ -113,7 +111,7 @@ const back = () => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) :
     return true;
   }
 
-/* ---------------- SUBMIT ---------------- */
+  /* ---------------- SUBMIT ---------------- */
 
   async function handleSubmit() {
     setSubmitted(true);
@@ -137,6 +135,7 @@ const back = () => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) :
       form.append("state", state);
       form.append("country", country);
       form.append("pincode", pincode);
+
       if (landmark) form.append("landmark", landmark);
       if (gst) form.append("gst", gst);
 
@@ -156,23 +155,24 @@ const back = () => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) :
         } as any);
       }
 
-      await api.post("/auth/register/", form, {
+      await api.post("/api/auth/register/", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       Alert.alert("Success", "Account created. Please login.");
       router.replace("/(auth)/login-provider");
     } catch (e: any) {
+      console.log("PROVIDER REGISTER ERROR:", e?.response?.data);
       Alert.alert(
         "Registration failed",
-        e?.response?.data?.detail || "Please check details"
+        JSON.stringify(e?.response?.data, null, 2)
       );
     } finally {
       setLoading(false);
     }
   }
 
-/* ---------------- UI ---------------- */
+  /* ---------------- UI ---------------- */
 
   return (
     <LinearGradient colors={["#0B0B0F", "#12121A"]} style={styles.container}>
@@ -187,11 +187,17 @@ const back = () => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) :
           {/* STEP 1 */}
           {step === 1 && (
             <>
-              <Input label="Email *" value={email} onChangeText={setEmail}
-                error={submitted && !emailRegex.test(email) && "Invalid email"} />
-              <Input label="Password *" value={password}
-                onChangeText={setPassword} secureTextEntry={!showPwd}
-                error={submitted && password.length < 6 && "Min 6 chars"}
+              <Input
+                label="Email *"
+                value={email}
+                onChangeText={setEmail}
+                error={submitted && !emailRegex.test(email) && "Invalid email"}
+              />
+              <Input
+                label="Password *"
+                value={password}
+                secureTextEntry={!showPwd}
+                onChangeText={setPassword}
                 rightIcon={
                   <Ionicons
                     name={showPwd ? "eye-off" : "eye"}
@@ -199,50 +205,99 @@ const back = () => setStep((prev) => (prev > 1 ? ((prev - 1) as 1 | 2 | 3 | 4) :
                     color="#9CA3AF"
                     onPress={() => setShowPwd(!showPwd)}
                   />
-                } />
-              <Input label="Phone (10 digits) *" value={phone}
+                }
+                error={submitted && password.length < 6 && "Min 6 chars"}
+              />
+              <Input
+                label="Phone (10 digits) *"
+                value={phone}
                 keyboardType="numeric"
                 onChangeText={(t) => setPhone(t.replace(/[^0-9]/g, ""))}
-                error={submitted && !phoneRegex.test(phone) && "Invalid phone"} />
+                error={submitted && !phoneRegex.test(phone) && "Invalid phone"}
+              />
             </>
           )}
 
           {/* STEP 2 */}
           {step === 2 && (
             <>
-              <Input label="Business Name *" value={businessName} onChangeText={setBusinessName}
-                error={submitted && !businessName && "Required"} />
-              <Input label="Owner Name *" value={ownerName} onChangeText={setOwnerName}
-                error={submitted && !ownerName && "Required"} />
-              <Dropdown label="Category *" value={category} setValue={setCategory} options={CATEGORIES}
-                error={submitted && !category && "Select category"} />
+              <Input
+                label="Business Name *"
+                value={businessName}
+                onChangeText={setBusinessName}
+                error={submitted && !businessName && "Required"}
+              />
+              <Input
+                label="Owner Name *"
+                value={ownerName}
+                onChangeText={setOwnerName}
+                error={submitted && !ownerName && "Required"}
+              />
+              <Dropdown
+                label="Category *"
+                value={category}
+                setValue={setCategory}
+                options={CATEGORIES}
+                error={submitted && !category && "Select category"}
+              />
             </>
           )}
 
           {/* STEP 3 */}
           {step === 3 && (
             <>
-              <Input label="Street Address *" value={street} onChangeText={setStreet}
-                error={submitted && !street && "Required"} />
-              <Input label="City *" value={city} onChangeText={setCity}
-                error={submitted && !city && "Required"} />
-              <Dropdown label="State *" value={state} setValue={setState} options={INDIAN_STATES}
-                error={submitted && !state && "Select state"} />
-              <Input label="Pincode *" value={pincode} keyboardType="numeric"
+              <Input
+                label="Street Address *"
+                value={street}
+                onChangeText={setStreet}
+                error={submitted && !street && "Required"}
+              />
+              <Input
+                label="City *"
+                value={city}
+                onChangeText={setCity}
+                error={submitted && !city && "Required"}
+              />
+              <Dropdown
+                label="State *"
+                value={state}
+                setValue={setState}
+                options={INDIAN_STATES}
+                error={submitted && !state && "Select state"}
+              />
+              <Input
+                label="Pincode *"
+                value={pincode}
+                keyboardType="numeric"
                 onChangeText={(t) => setPincode(t.replace(/[^0-9]/g, ""))}
-                error={submitted && !pinRegex.test(pincode) && "6 digit PIN"} />
-              <Input label="Landmark (optional)" value={landmark} onChangeText={setLandmark} />
+                error={submitted && !pinRegex.test(pincode) && "6 digit PIN"}
+              />
+              <Input
+                label="Landmark (optional)"
+                value={landmark}
+                onChangeText={setLandmark}
+              />
             </>
           )}
 
           {/* STEP 4 */}
           {step === 4 && (
             <>
-              <Input label="GST Number (optional)" value={gst} onChangeText={setGst} />
-              <ImagePickerBox label="Business Cover (optional)" image={coverImage}
-                onPick={() => pickImage(setCoverImage)} />
-              <ImagePickerBox label="Owner Photo (optional)" image={ownerImage}
-                onPick={() => pickImage(setOwnerImage)} />
+              <Input
+                label="GST Number (optional)"
+                value={gst}
+                onChangeText={setGst}
+              />
+              <ImagePickerBox
+                label="Business Cover (optional)"
+                image={coverImage}
+                onPick={() => pickImage(setCoverImage)}
+              />
+              <ImagePickerBox
+                label="Owner Photo (optional)"
+                image={ownerImage}
+                onPick={() => pickImage(setOwnerImage)}
+              />
             </>
           )}
 
@@ -303,10 +358,14 @@ function Dropdown({ label, value, setValue, options, error }: any) {
       <ScrollView style={styles.dropdown}>
         {options.map((o: string) => (
           <Pressable key={o} onPress={() => setValue(o)}>
-            <Text style={[
-              styles.option,
-              value === o && { color: "#22C55E" },
-            ]}>{o}</Text>
+            <Text
+              style={[
+                styles.option,
+                value === o && { color: "#22C55E" },
+              ]}
+            >
+              {o}
+            </Text>
           </Pressable>
         ))}
       </ScrollView>

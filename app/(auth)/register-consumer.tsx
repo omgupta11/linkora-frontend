@@ -107,16 +107,17 @@ export default function RegisterConsumer() {
         } as any);
       }
 
-      await api.post("/auth/register/", form, {
+      await api.post("/api/auth/register/", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       Alert.alert("Success", "Account created. Please login.");
       router.replace("/(auth)/login-consumer");
     } catch (e: any) {
+      console.log("REGISTER ERROR:", e?.response?.data);
       Alert.alert(
         "Registration failed",
-        e?.response?.data?.detail || "Please check details"
+        JSON.stringify(e?.response?.data, null, 2)
       );
     } finally {
       setLoading(false);
@@ -213,9 +214,7 @@ export default function RegisterConsumer() {
               }
             >
               <Ionicons
-                name={
-                  prefs.includes(p) ? "checkbox" : "square-outline"
-                }
+                name={prefs.includes(p) ? "checkbox" : "square-outline"}
                 size={20}
                 color="#22C55E"
               />
@@ -223,7 +222,6 @@ export default function RegisterConsumer() {
             </Pressable>
           ))}
 
-          {/* ACTION */}
           <Pressable
             style={[styles.primary, (!isValid || loading) && styles.disabled]}
             disabled={!isValid || loading}
