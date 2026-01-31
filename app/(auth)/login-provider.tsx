@@ -1,3 +1,4 @@
+// app/(auth)/login-provider.tsx
 import { useState } from "react";
 import {
   View,
@@ -12,43 +13,41 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function LoginProvider() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, loading: authLoading } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPwd, setShowPwd] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   async function handleLogin() {
     setSubmitted(true);
-    if (!email || !password) return;
+    
+    if (!usernameOrEmail.trim() || !password.trim()) {
+      Alert.alert("Error", "Please enter email/username and password");
+      return;
+    }
 
     try {
-      setLoading(true);
-
-      const user = await login(
-        email.trim().toLowerCase(),
-        password
-      );
-if ((user as any).role !== "provider") {
-
-        Alert.alert("Access denied", "Not a provider account");
-        return;
+      setIsLoading(true);
+      const result = await login(usernameOrEmail.trim().toLowerCase(), password);
+      
+      if (!result.success) {
+        Alert.alert("Login Failed", result.error || "Invalid credentials");
       }
-
-      router.replace("/(provider)/dashboard");
+      // Navigation happens in AuthContext on success
     } catch (e: any) {
       Alert.alert(
-        "Login failed",
-        e?.response?.data?.detail || "Invalid credentials"
+        "Login Failed",
+        e?.response?.data?.detail || "Network error. Please try again."
       );
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
@@ -74,48 +73,74 @@ if ((user as any).role !== "provider") {
         </View>
 
         <View style={styles.form}>
-          <Input
-            label="Email *"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            error={submitted && !email && "Email required"}
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email or Username *</Text>
+            <TextInput
+              style={styles.input}
+              value={usernameOrEmail}
+              onChangeText={setUsernameOrEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              placeholder="business@example.com or username"
+              placeholderTextColor="#6B7280"
+              editable={!isLoading && !authLoading}
+            />
+            {submitted && !usernameOrEmail && (
+              <Text style={styles.error}>Email/Username required</Text>
+            )}
+          </View>
 
-          <Input
-            label="Password *"
-            value={password}
-            secureTextEntry={!showPwd}
-            onChangeText={setPassword}
-            rightIcon={
-              <Ionicons
-                name={showPwd ? "eye-off" : "eye"}
-                size={18}
-                color="#9CA3AF"
-                onPress={() => setShowPwd(!showPwd)}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Password *</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                value={password}
+                secureTextEntry={!showPassword}
+                onChangeText={setPassword}
+                placeholder="••••••"
+                placeholderTextColor="#6B7280"
+                editable={!isLoading && !authLoading}
               />
-            }
-            error={submitted && !password && "Password required"}
-          />
+              <Pressable onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={20}
+                  color="#9CA3AF"
+                />
+              </Pressable>
+            </View>
+            {submitted && !password && (
+              <Text style={styles.error}>Password required</Text>
+            )}
+          </View>
         </View>
 
         <Pressable
-          style={[styles.primary, loading && styles.disabled]}
+          style={[styles.primaryButton, (isLoading || authLoading) && styles.disabledButton]}
           onPress={handleLogin}
-          disabled={loading}
+          disabled={isLoading || authLoading}
         >
-          <Text style={styles.primaryText}>
-            {loading ? "Logging in..." : "Login"}
+          <Text style={styles.primaryButtonText}>
+            {isLoading || authLoading ? "Logging in..." : "Login"}
           </Text>
         </Pressable>
 
-        <Pressable onPress={() => router.push("/(auth)/forgot-password")}>
-          <Text style={styles.link}>Forgot password?</Text>
+        <Pressable 
+          onPress={() => router.push("/(auth)/forgot-password")}
+          style={styles.linkContainer}
+          disabled={isLoading || authLoading}
+        >
+          <Text style={styles.linkText}>Forgot password?</Text>
         </Pressable>
 
-        <Pressable onPress={() => router.push("/(auth)/register-provider")}>
-          <Text style={styles.linkAlt}>
-            Don’t have an account? Register
+        <Pressable 
+          onPress={() => router.push("/(auth)/register-provider")}
+          style={styles.linkContainer}
+          disabled={isLoading || authLoading}
+        >
+          <Text style={styles.linkAltText}>
+            Don't have an account? <Text style={styles.linkHighlight}>Register</Text>
           </Text>
         </Pressable>
       </KeyboardAvoidingView>
@@ -123,97 +148,99 @@ if ((user as any).role !== "provider") {
   );
 }
 
-/* ---------- INPUT COMPONENT ---------- */
-
-function Input({ label, error, rightIcon, ...props }: any) {
-  return (
-    <View style={{ marginBottom: 18 }}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputWrap}>
-        <TextInput
-          {...props}
-          style={styles.input}
-          placeholderTextColor="#6B7280"
-        />
-        {rightIcon}
-      </View>
-      {error && <Text style={styles.error}>{error}</Text>}
-    </View>
-  );
-}
-
-/* ---------- STYLES ---------- */
-
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 24 },
-
+  container: { 
+    flex: 1, 
+    paddingHorizontal: 24,
+    paddingTop: 50,
+  },
   header: {
-    marginTop: 90,
+    marginTop: 40,
     marginBottom: 50,
     alignItems: "center",
   },
-
   title: {
     fontSize: 26,
     fontWeight: "700",
     color: "#FFFFFF",
     marginTop: 16,
   },
-
   subtitle: {
     fontSize: 14,
     color: "#A1A1AA",
     marginTop: 10,
     textAlign: "center",
   },
-
-  form: { marginBottom: 30 },
-
-  label: { color: "#9CA3AF", fontSize: 13, marginBottom: 6 },
-
-  inputWrap: {
+  form: { 
+    marginBottom: 30,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: { 
+    color: "#9CA3AF", 
+    fontSize: 14, 
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: "#1F2937",
+    borderRadius: 14,
+    padding: 16,
+    color: "#FFFFFF",
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#374151",
+  },
+  passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#1F2937",
     borderRadius: 14,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: "#374151",
   },
-
-  input: {
-    height: 52,
+  passwordInput: {
     flex: 1,
+    height: 52,
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 16,
   },
-
-  error: { color: "#EF4444", fontSize: 12, marginTop: 6 },
-
-  primary: {
+  error: { 
+    color: "#EF4444", 
+    fontSize: 12, 
+    marginTop: 6,
+  },
+  primaryButton: {
     backgroundColor: "#22C55E",
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderRadius: 14,
     alignItems: "center",
     marginBottom: 20,
   },
-
-  primaryText: {
+  disabledButton: {
+    opacity: 0.5,
+  },
+  primaryButtonText: {
     color: "#000",
     fontSize: 16,
     fontWeight: "600",
   },
-
-  link: {
-    textAlign: "center",
+  linkContainer: {
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  linkText: {
     color: "#22C55E",
     fontSize: 14,
-    marginBottom: 10,
+    fontWeight: "500",
   },
-
-  linkAlt: {
-    textAlign: "center",
+  linkAltText: {
     color: "#A1A1AA",
     fontSize: 14,
   },
-
-  disabled: { opacity: 0.5 },
+  linkHighlight: {
+    color: "#22C55E",
+    fontWeight: "600",
+  },
 });
